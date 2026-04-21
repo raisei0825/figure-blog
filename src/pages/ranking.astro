@@ -1,0 +1,181 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { SITE_TITLE } from '../consts';
+import { getBlogPosts, resolveDate } from '../lib/microcms';
+
+const { contents: posts } = await getBlogPosts({
+  orders: '-publishDate,-publishedAt',
+  limit: 10,
+});
+
+function formatDate(date: Date) {
+  return date.toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric' });
+}
+---
+
+<BaseLayout title={`月間ランキング | ${SITE_TITLE}`} description="FigBlogの月間人気フィギュア記事ランキングです。" withSidebar={true}>
+  <div class="ranking-page">
+    <div class="page-header">
+      <h1 class="page-title">月間ランキング</h1>
+      <p class="page-desc">人気のフィギュア記事TOP10をお届けします。</p>
+    </div>
+
+    {posts.length > 0 ? (
+      <ol class="ranking-list">
+        {posts.map((post, i) => {
+          const date = resolveDate(post);
+          const rank = i + 1;
+          return (
+            <li class="ranking-item">
+              <a href={`/blog/${post.id}/`} class="ranking-link">
+                <span class={`rank-number ${rank <= 3 ? 'rank-top' : ''}`}>{rank}</span>
+                <div class="ranking-image">
+                  {post.heroImage ? (
+                    <img src={post.heroImage.url} alt={post.title} loading="lazy" width="120" height="90" />
+                  ) : (
+                    <div class="ranking-placeholder" aria-hidden="true"><span>📦</span></div>
+                  )}
+                </div>
+                <div class="ranking-body">
+                  <h2 class="ranking-title">{post.title}</h2>
+                  <p class="ranking-desc">{post.description}</p>
+                  <time class="ranking-date" datetime={date.toISOString()}>{formatDate(date)}</time>
+                </div>
+              </a>
+            </li>
+          );
+        })}
+      </ol>
+    ) : (
+      <p class="empty-message">ランキングを準備中です。しばらくお待ちください。</p>
+    )}
+  </div>
+</BaseLayout>
+
+<style>
+  .page-header {
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid #e5e2dc;
+  }
+
+  .page-title {
+    font-family: 'Outfit', 'Noto Sans JP', sans-serif;
+    font-size: clamp(1.625rem, 4vw, 2rem);
+    font-weight: 700;
+    color: #1c1a18;
+    margin: 0 0 0.375rem;
+    padding-left: 0.875rem;
+    border-left: 3px solid #c8380a;
+    letter-spacing: -0.015em;
+  }
+
+  .page-desc {
+    font-size: 0.875rem;
+    color: #6b6560;
+    margin: 0.5rem 0 0 1.125rem;
+  }
+
+  .ranking-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .ranking-item {
+    background: #ffffff;
+    border: 1px solid #e5e2dc;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: box-shadow 0.2s ease, border-color 0.2s ease;
+  }
+
+  .ranking-item:hover {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border-color: #ccc9c3;
+  }
+
+  .ranking-link {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.875rem 1rem;
+    text-decoration: none;
+  }
+
+  .rank-number {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #a09890;
+    min-width: 2rem;
+    text-align: center;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+
+  .rank-number.rank-top {
+    color: #c8380a;
+  }
+
+  .ranking-image {
+    width: 80px;
+    height: 60px;
+    flex-shrink: 0;
+    border-radius: 4px;
+    overflow: hidden;
+    background: #f0ede9;
+  }
+
+  .ranking-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .ranking-placeholder {
+    width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.5rem; opacity: 0.2;
+  }
+
+  .ranking-body {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .ranking-title {
+    font-family: 'Outfit', 'Noto Sans JP', sans-serif;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: #1c1a18;
+    line-height: 1.45;
+    margin: 0 0 0.25rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    letter-spacing: -0.01em;
+  }
+
+  .ranking-desc {
+    font-size: 0.8125rem;
+    color: #6b6560;
+    line-height: 1.5;
+    margin: 0 0 0.25rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .ranking-date { font-size: 0.75rem; color: #a09890; }
+
+  .empty-message {
+    color: #a09890;
+    text-align: center;
+    padding: 4rem 0;
+    font-size: 0.9375rem;
+  }
+</style>

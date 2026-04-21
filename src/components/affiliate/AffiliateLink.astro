@@ -1,0 +1,48 @@
+---
+interface Props {
+  href: string;
+  store: 'amazon' | 'rakuten' | 'mercari' | 'other';
+  label?: string;
+}
+
+const { href, store, label } = Astro.props;
+
+const DEFAULT_LABELS: Record<string, string> = {
+  amazon: 'Amazonで見る',
+  rakuten: '楽天市場で見る',
+  mercari: 'メルカリで探す',
+  other: 'ショップで見る',
+};
+
+const displayLabel = label ?? DEFAULT_LABELS[store] ?? 'ショップで見る';
+---
+
+<a
+  href={href}
+  class:list={['affiliate-link', `affiliate-link--${store}`]}
+  target="_blank"
+  rel="noopener noreferrer nofollow"
+>
+  {displayLabel} →
+</a>
+
+<style>
+  .affiliate-link {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.3125rem 0.75rem;
+    border-radius: 4px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: opacity 0.15s ease;
+    vertical-align: middle;
+  }
+
+  .affiliate-link:hover { opacity: 0.85; }
+
+  .affiliate-link--amazon { background: #ff9900; color: #111; }
+  .affiliate-link--rakuten { background: #bf0000; color: #fff; }
+  .affiliate-link--mercari { background: #ff3366; color: #fff; }
+  .affiliate-link--other { background: var(--text); color: #fff; }
+</style>

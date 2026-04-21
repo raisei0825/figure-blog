@@ -1,0 +1,261 @@
+---
+import { SITE_TITLE } from '../consts';
+
+const navLinks = [
+  { href: '/blog', label: '記事一覧' },
+  { href: '/ranking', label: 'ランキング' },
+  { href: '/feature', label: 'おすすめ' },
+];
+
+const currentPath = Astro.url.pathname;
+---
+
+<header class="site-header">
+  <div class="container">
+    <div class="header-inner">
+      <!-- ロゴ -->
+      <a href="/" class="logo" aria-label="FigFirst トップへ">
+        <span class="logo-icon" aria-hidden="true">◆</span>
+        <span class="logo-text">FigBlog</span>
+      </a>
+
+      <!-- デスクトップナビ -->
+      <nav class="desktop-nav" aria-label="メインナビゲーション">
+        {
+          navLinks.map((link) => (
+            <a
+              href={link.href}
+              class:list={[
+                'nav-link',
+                { active: currentPath.startsWith(link.href) },
+              ]}
+            >
+              {link.label}
+            </a>
+          ))
+        }
+      </nav>
+
+      <!-- ハンバーガーボタン（モバイル） -->
+      <button
+        class="hamburger"
+        id="hamburger-btn"
+        aria-label="メニューを開く"
+        aria-expanded="false"
+        aria-controls="mobile-menu"
+      >
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+      </button>
+    </div>
+  </div>
+
+  <!-- モバイルメニュー -->
+  <div class="mobile-menu" id="mobile-menu" hidden>
+    <nav aria-label="モバイルメニュー">
+      {
+        navLinks.map((link) => (
+          <a
+            href={link.href}
+            class:list={[
+              'mobile-nav-link',
+              { active: currentPath.startsWith(link.href) },
+            ]}
+          >
+            {link.label}
+          </a>
+        ))
+      }
+    </nav>
+  </div>
+</header>
+
+<script>
+  const btn = document.getElementById('hamburger-btn');
+  const menu = document.getElementById('mobile-menu');
+
+  btn?.addEventListener('click', () => {
+    const isOpen = !menu?.hidden;
+    if (menu) menu.hidden = isOpen;
+    btn.setAttribute('aria-expanded', String(!isOpen));
+    btn.classList.toggle('is-open', !isOpen);
+  });
+</script>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid #e5e2dc;
+  }
+
+  .container {
+    width: 100%;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 1rem;
+  }
+
+  .header-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 60px;
+    gap: 1rem;
+  }
+
+  /* ロゴ */
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    flex-shrink: 0;
+  }
+
+  .logo-icon {
+    font-size: 1rem;
+    color: #c8380a;
+  }
+
+  .logo-text {
+    font-family: 'Outfit', 'Noto Sans JP', sans-serif;
+    font-size: 1.1875rem;
+    font-weight: 700;
+    color: #1c1a18;
+    letter-spacing: -0.01em;
+  }
+
+  .logo-sub {
+    font-size: 0.625rem;
+    color: #a09890;
+    display: none;
+    letter-spacing: 0.02em;
+  }
+
+  @media (min-width: 640px) {
+    .logo-sub {
+      display: inline;
+    }
+  }
+
+  /* デスクトップナビ */
+  .desktop-nav {
+    display: none;
+    align-items: center;
+    gap: 0;
+  }
+
+  @media (min-width: 768px) {
+    .desktop-nav {
+      display: flex;
+    }
+  }
+
+  .nav-link {
+    padding: 0.5rem 0.875rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #6b6560;
+    text-decoration: none;
+    border-radius: 6px;
+    transition: color 0.15s ease, background 0.15s ease;
+    position: relative;
+  }
+
+  .nav-link:hover {
+    color: #1c1a18;
+    background: #f0ede9;
+  }
+
+  .nav-link.active {
+    color: #c8380a;
+    background: rgba(200, 56, 10, 0.07);
+  }
+
+  /* ハンバーガー */
+  .hamburger {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    width: 40px;
+    height: 40px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 6px;
+    transition: background 0.15s ease;
+  }
+
+  .hamburger:hover {
+    background: #f0ede9;
+  }
+
+  @media (min-width: 768px) {
+    .hamburger {
+      display: none;
+    }
+  }
+
+  .hamburger-line {
+    display: block;
+    width: 100%;
+    height: 1.5px;
+    background: #6b6560;
+    border-radius: 2px;
+    transition: transform 0.25s ease, opacity 0.25s ease;
+    transform-origin: center;
+  }
+
+  .hamburger.is-open .hamburger-line:nth-child(1) {
+    transform: translateY(6.5px) rotate(45deg);
+  }
+
+  .hamburger.is-open .hamburger-line:nth-child(2) {
+    opacity: 0;
+  }
+
+  .hamburger.is-open .hamburger-line:nth-child(3) {
+    transform: translateY(-6.5px) rotate(-45deg);
+  }
+
+  /* モバイルメニュー */
+  .mobile-menu {
+    border-top: 1px solid #e5e2dc;
+    background: #ffffff;
+    padding: 0.75rem 1rem 1rem;
+  }
+
+  .mobile-menu nav {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+  }
+
+  .mobile-nav-link {
+    display: block;
+    padding: 0.625rem 0.75rem;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: #6b6560;
+    text-decoration: none;
+    border-radius: 6px;
+    transition: color 0.15s ease, background 0.15s ease;
+  }
+
+  .mobile-nav-link:hover {
+    color: #1c1a18;
+    background: #f0ede9;
+  }
+
+  .mobile-nav-link.active {
+    color: #c8380a;
+    background: rgba(200, 56, 10, 0.07);
+  }
+</style>

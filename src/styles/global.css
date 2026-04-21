@@ -1,0 +1,206 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Outfit:wght@400;500;600;700;800&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --color-bg-primary: #ffffff;
+  --color-bg-secondary: #f8f7f5;
+  --color-card-bg: #ffffff;
+  --color-card-hover: #f5f4f2;
+  --color-text-primary: #1c1a18;
+  --color-text-secondary: #6b6560;
+  --font-sans: 'Noto Sans JP', sans-serif;
+  --font-display: 'Outfit', 'Noto Sans JP', sans-serif;
+}
+
+:root {
+  --bg: #ffffff;
+  --bg-surface: #f8f7f5;
+  --bg-muted: #f0ede9;
+  --border: #e5e2dc;
+  --border-strong: #ccc9c3;
+  --text: #1c1a18;
+  --text-2: #6b6560;
+  --text-3: #a09890;
+  --accent: #c8380a;
+  --accent-hover: #a82e08;
+  --accent-subtle: rgba(200, 56, 10, 0.07);
+  --amazon-color: #ff9900;
+  --rakuten-color: #bf0000;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Noto Sans JP', sans-serif;
+  background-color: var(--bg);
+  color: var(--text);
+  margin: 0;
+  padding: 0;
+  line-height: 1.7;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Outfit', 'Noto Sans JP', sans-serif;
+  line-height: 1.3;
+  color: var(--text);
+  margin: 0 0 0.75rem 0;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+a:hover {
+  color: var(--accent-hover);
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* アクセントテキスト */
+.accent-text {
+  color: var(--accent);
+}
+
+/* カードベーススタイル */
+.card {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  transition: box-shadow 0.2s ease;
+}
+
+.card:hover {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+/* スクリーンリーダー用 */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* コンテナ */
+.container {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+@media (min-width: 640px) {
+  .container {
+    padding: 0 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container {
+    padding: 0 2rem;
+  }
+}
+
+/* ---- microCMS記事本文内で使えるアフィリエイトボックス ---- */
+.cms-product-box {
+  display: flex;
+  gap: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.125rem;
+  background: var(--bg-surface);
+  margin: 1.5rem 0;
+  flex-wrap: wrap;
+}
+
+.cms-product-box .cms-product-name {
+  font-weight: 600;
+  font-size: 0.9375rem;
+  color: var(--text);
+  line-height: 1.4;
+  margin: 0 0 0.375rem;
+  flex: 1 1 100%;
+}
+
+.cms-product-box .cms-product-note {
+  font-size: 0.75rem;
+  color: var(--text-3);
+  margin: 0.25rem 0 0;
+  flex: 1 1 100%;
+}
+
+.cms-product-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  flex: 1 1 100%;
+  margin-top: 0.5rem;
+}
+
+/* アフィリエイトボタン（microCMS HTML内で直接使用） */
+.btn-amazon,
+.btn-rakuten,
+.btn-mercari {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.4375rem 0.875rem;
+  border-radius: 5px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: opacity 0.15s ease;
+  white-space: nowrap;
+}
+
+.btn-amazon { background: #ff9900; color: #111; }
+.btn-rakuten { background: #bf0000; color: #fff; }
+.btn-mercari { background: #ff3366; color: #fff; }
+
+.btn-amazon:hover,
+.btn-rakuten:hover,
+.btn-mercari:hover { opacity: 0.85; color: inherit; }
+
+/* テーブル（比較表） */
+.prose table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+  font-size: 0.875rem;
+}
+
+.prose th {
+  background: var(--bg-muted);
+  font-weight: 600;
+  padding: 0.625rem 0.875rem;
+  border: 1px solid var(--border);
+  text-align: left;
+  color: var(--text);
+}
+
+.prose td {
+  padding: 0.625rem 0.875rem;
+  border: 1px solid var(--border);
+  color: var(--text-2);
+  vertical-align: top;
+}

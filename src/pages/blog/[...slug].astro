@@ -1,0 +1,23 @@
+---
+import BlogPost from '../../layouts/BlogPost.astro';
+import { getAllBlogIds, getBlogPost, resolveDate } from '../../lib/microcms';
+
+export async function getStaticPaths() {
+  const ids = await getAllBlogIds();
+  return ids.map((id) => ({ params: { slug: id } }));
+}
+
+const { slug } = Astro.params;
+const post = await getBlogPost(slug as string);
+const publishDate = resolveDate(post);
+---
+
+<BlogPost
+  title={post.title}
+  description={post.description}
+  publishDate={publishDate}
+  updatedDate={post.revisedAt !== post.publishedAt ? new Date(post.revisedAt) : undefined}
+  heroImage={post.heroImage?.url}
+  category={post.category}
+  body={post.body}
+/>

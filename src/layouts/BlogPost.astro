@@ -1,0 +1,291 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import { CATEGORY_LABELS } from '../consts';
+import type { Category } from '../lib/microcms';
+
+interface Props {
+  title: string;
+  description?: string;
+  publishDate: Date;
+  updatedDate?: Date;
+  heroImage?: string;
+  category?: Category;
+  body: string;
+}
+
+const {
+  title,
+  description,
+  publishDate,
+  updatedDate,
+  heroImage,
+  category,
+  body,
+} = Astro.props;
+
+function formatDate(date: Date) {
+  return date.toLocaleDateString('ja-JP', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+}
+---
+
+<BaseLayout title={title} description={description} heroImage={heroImage} withSidebar={true}>
+  <article class="blog-article">
+      {heroImage && (
+        <div class="hero-image">
+          <img src={heroImage} alt={title} width={1020} height={510} />
+        </div>
+      )}
+      <div class="prose-wrapper">
+        <div class="article-header">
+          {category && (
+            <a href={`/category/${category}`} class="category-badge">
+              {CATEGORY_LABELS[category] ?? category}
+            </a>
+          )}
+          <h1 class="article-title">{title}</h1>
+          <div class="article-meta">
+            <time datetime={publishDate.toISOString()}>
+              {formatDate(publishDate)}
+            </time>
+            {updatedDate && (
+              <span class="updated-date">
+                （更新: <time datetime={updatedDate.toISOString()}>{formatDate(updatedDate)}</time>）
+              </span>
+            )}
+          </div>
+        </div>
+
+        <!-- TOC（見出しが3つ以上あるとき自動表示） -->
+        <nav class="toc" id="toc" aria-label="目次" style="display:none">
+          <p class="toc-title">目次</p>
+          <ol class="toc-list" id="toc-list"></ol>
+        </nav>
+
+        <div class="prose" id="article-body" set:html={body} />
+      </div>
+    </article>
+</BaseLayout>
+
+<script>
+  const body = document.getElementById('article-body');
+  const toc = document.getElementById('toc');
+  const tocList = document.getElementById('toc-list');
+
+  if (body && toc && tocList) {
+    const headings = body.querySelectorAll('h2, h3');
+    if (headings.length >= 3) {
+      headings.forEach((heading, i) => {
+        const id = `heading-${i}`;
+        heading.id = id;
+        const li = document.createElement('li');
+        li.className = heading.tagName === 'H3' ? 'toc-item toc-item--h3' : 'toc-item';
+        const a = document.createElement('a');
+        a.href = `#${id}`;
+        a.textContent = heading.textContent ?? '';
+        li.appendChild(a);
+        tocList.appendChild(li);
+      });
+      toc.style.display = 'block';
+    }
+  }
+</script>
+
+<style>
+  .hero-image {
+    width: 100%;
+    max-height: 480px;
+    overflow: hidden;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+  }
+
+  .hero-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .prose-wrapper {
+    max-width: 720px;
+    margin: 0 auto;
+  }
+
+  .article-header {
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid #e5e2dc;
+  }
+
+  .category-badge {
+    display: inline-block;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    color: #c8380a;
+    background: rgba(200, 56, 10, 0.07);
+    border: 1px solid rgba(200, 56, 10, 0.2);
+    padding: 0.2rem 0.6rem;
+    border-radius: 3px;
+    text-decoration: none;
+    margin-bottom: 0.875rem;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    transition: background 0.15s ease;
+  }
+
+  .category-badge:hover {
+    background: rgba(200, 56, 10, 0.12);
+    color: #c8380a;
+  }
+
+  .article-title {
+    font-family: 'Outfit', 'Noto Sans JP', sans-serif;
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 700;
+    line-height: 1.25;
+    color: #1c1a18;
+    margin: 0 0 0.875rem;
+    letter-spacing: -0.02em;
+  }
+
+  .article-meta {
+    font-size: 0.8125rem;
+    color: #a09890;
+  }
+
+  .updated-date {
+    margin-left: 0.5rem;
+  }
+
+  .prose {
+    color: #3a3633;
+    line-height: 1.85;
+    font-size: 1rem;
+  }
+
+  .prose :global(h2) {
+    font-family: 'Outfit', 'Noto Sans JP', sans-serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1c1a18;
+    margin: 2.25rem 0 1rem;
+    padding-left: 0.75rem;
+    border-left: 3px solid #c8380a;
+    letter-spacing: -0.01em;
+  }
+
+  .prose :global(h3) {
+    font-family: 'Outfit', 'Noto Sans JP', sans-serif;
+    font-size: 1.0625rem;
+    font-weight: 600;
+    color: #1c1a18;
+    margin: 1.75rem 0 0.75rem;
+    letter-spacing: -0.01em;
+  }
+
+  .prose :global(p) {
+    margin-bottom: 1.375rem;
+  }
+
+  .prose :global(a) {
+    color: #c8380a;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    text-decoration-color: rgba(200, 56, 10, 0.4);
+    transition: text-decoration-color 0.15s ease;
+  }
+
+  .prose :global(a:hover) {
+    text-decoration-color: #c8380a;
+    color: #a82e08;
+  }
+
+  .prose :global(img) {
+    border-radius: 6px;
+    max-width: 100%;
+  }
+
+  .prose :global(hr) {
+    border: none;
+    border-top: 1px solid #e5e2dc;
+    margin: 2.5rem 0;
+  }
+
+  .prose :global(blockquote) {
+    border-left: 3px solid #e5e2dc;
+    padding-left: 1.125rem;
+    color: #6b6560;
+    margin: 1.75rem 0;
+  }
+
+  .prose :global(code) {
+    background: #f0ede9;
+    border: 1px solid #e5e2dc;
+    border-radius: 3px;
+    padding: 0.125rem 0.375rem;
+    font-size: 0.875em;
+    color: #c8380a;
+  }
+
+  .prose :global(pre) {
+    background: #1c1a18;
+    border-radius: 6px;
+    padding: 1.25rem;
+    overflow-x: auto;
+    margin-bottom: 1.375rem;
+  }
+
+  .prose :global(pre code) {
+    background: none;
+    border: none;
+    padding: 0;
+    color: #e8e3dc;
+  }
+
+  /* ---- TOC ---- */
+  .toc {
+    background: #f8f7f5;
+    border: 1px solid #e5e2dc;
+    border-radius: 8px;
+    padding: 1.125rem 1.25rem;
+    margin-bottom: 2rem;
+  }
+
+  .toc-title {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #a09890;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin: 0 0 0.75rem;
+  }
+
+  .toc-list {
+    margin: 0;
+    padding-left: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+
+  .toc-list :global(.toc-item) {
+    font-size: 0.875rem;
+    line-height: 1.4;
+  }
+
+  .toc-list :global(.toc-item--h3) {
+    margin-left: 1rem;
+    font-size: 0.8125rem;
+  }
+
+  .toc-list :global(a) {
+    color: #6b6560;
+    text-decoration: none;
+    transition: color 0.15s ease;
+  }
+
+  .toc-list :global(a:hover) { color: #c8380a; }
+</style>

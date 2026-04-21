@@ -1,0 +1,117 @@
+---
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import Sidebar from '../components/Sidebar.astro';
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description?: string;
+  heroImage?: string;
+  withSidebar?: boolean;
+}
+
+const {
+  title,
+  description = 'FigBlog — フィギュア情報をお届けするブログ。一番くじ・プライズ・新作フィギュアのレビューと最新情報。',
+  heroImage,
+  withSidebar = false,
+} = Astro.props;
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+---
+
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title} | FigBlog</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalURL} />
+
+    <!-- OGP -->
+    <meta property="og:title" content={`${title} | FigBlog`} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalURL} />
+    {heroImage && <meta property="og:image" content={heroImage} />}
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={`${title} | FigBlog`} />
+    <meta name="twitter:description" content={description} />
+    {heroImage && <meta name="twitter:image" content={heroImage} />}
+
+    <!-- favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+
+    <!-- GA4 -->
+    {
+      import.meta.env.PUBLIC_GA_ID && (
+        <>
+          <script
+            async
+            src={`https://www.googletagmanager.com/gtag/js?id=${import.meta.env.PUBLIC_GA_ID}`}
+          />
+          <script define:vars={{ gaId: import.meta.env.PUBLIC_GA_ID }}>
+            window.dataLayer = window.dataLayer || [];
+            function gtag() { dataLayer.push(arguments); }
+            gtag('js', new Date());
+            gtag('config', gaId);
+          </script>
+        </>
+      )
+    }
+  </head>
+  <body>
+    <Header />
+    {withSidebar ? (
+      <div class="layout-wrapper">
+        <div class="container layout-inner">
+          <main class="layout-main">
+            <slot />
+          </main>
+          <Sidebar />
+        </div>
+      </div>
+    ) : (
+      <slot />
+    )}
+    <Footer />
+  </body>
+</html>
+
+<style>
+  .layout-wrapper {
+    padding: 2.5rem 0 5rem;
+  }
+
+  .layout-inner {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    align-items: start;
+  }
+
+  @media (min-width: 1024px) {
+    .layout-inner {
+      grid-template-columns: 1fr 240px;
+      gap: 2.5rem;
+    }
+  }
+
+  .layout-main {
+    min-width: 0;
+  }
+
+  /* サイドバーはデスクトップで sticky */
+  @media (min-width: 1024px) {
+    :global(.sidebar) {
+      position: sticky;
+      top: 200px;
+      align-self: start;
+    }
+  }
+</style>

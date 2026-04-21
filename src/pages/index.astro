@@ -1,0 +1,709 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { CATEGORY_LABELS, SITE_DESCRIPTION } from '../consts';
+import { getBlogPosts, resolveDate } from '../lib/microcms';
+
+// 新着記事（最大6件）
+const { contents: latestPosts } = await getBlogPosts({
+  orders: '-publishDate,-publishedAt',
+  limit: 6,
+});
+
+// おすすめ記事（featured=true、最大4件）
+const { contents: featuredPosts } = await getBlogPosts({
+  filters: 'featured[equals]true',
+  orders: '-publishDate,-publishedAt',
+  limit: 4,
+});
+
+function formatDate(date: Date) {
+  return date.toLocaleDateString('ja-JP', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+}
+---
+
+<BaseLayout title="FigBlog — フィギュア情報をもっと身近に" description={SITE_DESCRIPTION} withSidebar={true}>
+
+  <!-- ヒーローセクション -->
+  <section class="hero">
+    <div class="hero-bg-text" aria-hidden="true">FIGURE</div>
+    <div class="hero-inner">
+      <div class="hero-meta-row">
+        <span class="hero-badge">
+          <svg width="8" height="8" viewBox="0 0 8 8" fill="currentColor" aria-hidden="true">
+            <circle cx="4" cy="4" r="4"/>
+          </svg>
+          フィギュアレビュー＆購入記録
+        </span>
+        <span class="hero-since">SINCE 2026</span>
+      </div>
+
+      <h1 class="hero-title">
+        <span class="hero-title-line1">給料日</span>
+        <span class="hero-title-line2">フィギュア部</span>
+      </h1>
+
+      <p class="hero-desc">
+        社会人1年目のフィギュア生活
+      </p>
+
+    </div>
+    <div class="hero-stamp" aria-hidden="true">
+      <span class="hero-stamp-text">MY<br>COLLECTION<br>LOG</span>
+    </div>
+  </section>
+
+  <!-- 新着記事 -->
+  <section class="latest-posts">
+    <div class="section-header">
+      <h2 class="section-title">新着記事</h2>
+      <a href="/blog" class="see-all">すべて見る →</a>
+    </div>
+
+    {latestPosts.length > 0 ? (
+      <div class="posts-grid">
+        {latestPosts.map((post) => {
+          const date = resolveDate(post);
+          return (
+            <article class="post-card">
+              <a href={`/blog/${post.id}/`} class="post-card-link">
+                <div class="post-card-image">
+                  {post.heroImage ? (
+                    <img
+                      src={post.heroImage.url}
+                      alt={post.title}
+                      loading="lazy"
+                      width="360"
+                      height="270"
+                    />
+                  ) : (
+                    <div class="post-card-placeholder" aria-hidden="true">
+                      <span>📦</span>
+                    </div>
+                  )}
+                  {post.category && (
+                    <span class="post-card-category">
+                      {CATEGORY_LABELS[post.category] ?? post.category}
+                    </span>
+                  )}
+                </div>
+                <div class="post-card-body">
+                  <h3 class="post-card-title">{post.title}</h3>
+                  <p class="post-card-desc">{post.description}</p>
+                  <time class="post-card-date" datetime={date.toISOString()}>
+                    {formatDate(date)}
+                  </time>
+                </div>
+              </a>
+            </article>
+          );
+        })}
+      </div>
+    ) : (
+      <p class="empty-message">記事を準備中です。しばらくお待ちください。</p>
+    )}
+  </section>
+
+  <!-- おすすめ特集 -->
+  {featuredPosts.length > 0 && (
+    <section class="featured-posts">
+      <div class="section-header">
+        <h2 class="section-title">おすすめ特集</h2>
+        <a href="/feature" class="see-all">すべて見る →</a>
+      </div>
+      <div class="featured-grid">
+        {featuredPosts.map((post) => (
+          <article class="featured-card">
+            <a href={`/blog/${post.id}/`} class="featured-card-link">
+              <div class="featured-card-image">
+                {post.heroImage ? (
+                  <img
+                    src={post.heroImage.url}
+                    alt={post.title}
+                    loading="lazy"
+                    width="600"
+                    height="400"
+                  />
+                ) : (
+                  <div class="featured-card-placeholder" aria-hidden="true">
+                    <span>⭐</span>
+                  </div>
+                )}
+              </div>
+              <div class="featured-card-body">
+                <span class="featured-badge">おすすめ</span>
+                <h3 class="featured-card-title">{post.title}</h3>
+                <p class="featured-card-desc">{post.description}</p>
+              </div>
+            </a>
+          </article>
+        ))}
+      </div>
+    </section>
+  )}
+
+  <!-- 月間ランキング -->
+  <section class="ranking-preview">
+    <div class="section-header">
+      <h2 class="section-title">月間ランキング</h2>
+      <a href="/ranking" class="see-all">全10位を見る →</a>
+    </div>
+    <div class="ranking-placeholder">
+      <p class="ranking-coming-soon">🏆 ランキングを準備中です。お楽しみに！</p>
+      <a href="/ranking" class="btn-outline">ランキングページへ</a>
+    </div>
+  </section>
+
+</BaseLayout>
+
+<style>
+  /* ---- ヒーロー ---- */
+  .hero {
+    position: relative;
+    padding: 3rem 2rem;
+    border-bottom: 1px solid #e5e2dc;
+    margin-bottom: 0;
+    overflow: hidden;
+    /* ドットグリッド背景 */
+    background-image: radial-gradient(circle, #ccc9c3 1px, transparent 1px);
+    background-size: 20px 20px;
+    background-color: #faf9f7;
+  }
+
+  /* ドットをフェードアウトさせる白グラデーションオーバーレイ */
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to bottom,
+      rgba(250, 249, 247, 0.15) 0%,
+      rgba(250, 249, 247, 0.75) 60%,
+      rgba(250, 249, 247, 0.97) 100%
+    );
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* 大きな装飾背景テキスト */
+  .hero-bg-text {
+    position: absolute;
+    right: -0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-family: 'Outfit', sans-serif;
+    font-size: clamp(6rem, 18vw, 13rem);
+    font-weight: 800;
+    letter-spacing: -0.05em;
+    color: transparent;
+    -webkit-text-stroke: 1.5px #e0ddd8;
+    text-stroke: 1.5px #e0ddd8;
+    pointer-events: none;
+    user-select: none;
+    white-space: nowrap;
+    z-index: 0;
+    opacity: 0.6;
+  }
+
+  .hero-inner {
+    position: relative;
+    z-index: 1;
+    max-width: 580px;
+  }
+
+  /* メタ行（バッジ + SINCE） */
+  .hero-meta-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    color: #c8380a;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    background: #fff2ee;
+    border: 1px solid rgba(200, 56, 10, 0.3);
+    padding: 0.25rem 0.75rem;
+    border-radius: 2px;
+  }
+
+  .hero-since {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    color: #a09890;
+    letter-spacing: 0.12em;
+  }
+
+  /* タイトル */
+  .hero-title {
+    font-family: 'Outfit', 'Noto Sans JP', sans-serif;
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.025em;
+    margin: 0 0 1.25rem;
+    color: #1c1a18;
+  }
+
+  .hero-title-line1 {
+    display: block;
+    font-size: clamp(2rem, 5vw, 3rem);
+    color: #1c1a18;
+  }
+
+  .hero-title-line2 {
+    display: block;
+    font-size: clamp(2.5rem, 7vw, 4.25rem);
+    color: #c8380a;
+    /* アンダーライン装飾 */
+    position: relative;
+    width: fit-content;
+  }
+
+  .hero-title-line2::after {
+    content: '';
+    position: absolute;
+    bottom: 0.1em;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: repeating-linear-gradient(
+      90deg,
+      #c8380a 0px,
+      #c8380a 6px,
+      transparent 6px,
+      transparent 10px
+    );
+    border-radius: 2px;
+  }
+
+  .hero-desc {
+    font-size: 0.9375rem;
+    color: #6b6560;
+    line-height: 1.85;
+    margin-bottom: 1.5rem;
+  }
+
+  .hero-br {
+    display: none;
+  }
+
+  @media (min-width: 480px) {
+    .hero-br { display: inline; }
+  }
+
+  /* カテゴリタグ */
+  .hero-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1.75rem;
+  }
+
+  .hero-tag {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #6b6560;
+    background: #ffffff;
+    border: 1px solid #e5e2dc;
+    padding: 0.2rem 0.625rem;
+    border-radius: 999px;
+    letter-spacing: 0.01em;
+    transition: border-color 0.15s, color 0.15s;
+  }
+
+  .hero-tag:hover {
+    border-color: #c8380a;
+    color: #c8380a;
+  }
+
+  /* CTAボタン */
+  .hero-actions {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  /* スタンプ装飾 */
+  .hero-stamp {
+    position: absolute;
+    right: 1.5rem;
+    bottom: 1.5rem;
+    z-index: 1;
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    border: 2.5px solid rgba(200, 56, 10, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform: rotate(-12deg);
+    opacity: 0.5;
+  }
+
+  .hero-stamp::before {
+    content: '';
+    position: absolute;
+    inset: 4px;
+    border-radius: 50%;
+    border: 1px solid rgba(200, 56, 10, 0.25);
+  }
+
+  .hero-stamp-text {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.5rem;
+    font-weight: 700;
+    color: #c8380a;
+    letter-spacing: 0.08em;
+    text-align: center;
+    line-height: 1.6;
+    text-transform: uppercase;
+  }
+
+  /* ---- ボタン ---- */
+  .btn-primary {
+    display: inline-block;
+    padding: 0.6875rem 1.5rem;
+    font-family: 'Outfit', 'Noto Sans JP', sans-serif;
+    font-weight: 600;
+    font-size: 0.9375rem;
+    color: #ffffff;
+    background: #c8380a;
+    border: 1px solid #c8380a;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+
+  .btn-primary:hover {
+    background: #a82e08;
+    border-color: #a82e08;
+    color: #ffffff;
+  }
+
+  .btn-secondary {
+    display: inline-block;
+    padding: 0.6875rem 1.5rem;
+    font-family: 'Outfit', 'Noto Sans JP', sans-serif;
+    font-weight: 600;
+    font-size: 0.9375rem;
+    color: #1c1a18;
+    background: transparent;
+    border: 1px solid #ccc9c3;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: background 0.15s ease, border-color 0.15s ease;
+  }
+
+  .btn-secondary:hover {
+    background: #f0ede9;
+    border-color: #a09890;
+    color: #1c1a18;
+  }
+
+  .btn-outline {
+    display: inline-block;
+    padding: 0.5625rem 1.25rem;
+    font-family: 'Outfit', 'Noto Sans JP', sans-serif;
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: #c8380a;
+    background: transparent;
+    border: 1px solid #c8380a;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: background 0.15s ease;
+  }
+
+  .btn-outline:hover {
+    background: rgba(200, 56, 10, 0.06);
+    color: #c8380a;
+  }
+
+  /* ---- セクション共通 ---- */
+  .latest-posts,
+  .featured-posts,
+  .ranking-preview {
+    padding: 2rem 0;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+    gap: 1rem;
+  }
+
+  .section-title {
+    font-family: 'Outfit', 'Noto Sans JP', sans-serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0 0 1.5rem;
+    color: #1c1a18;
+    padding-left: 0.875rem;
+    border-left: 3px solid #c8380a;
+    letter-spacing: -0.01em;
+  }
+
+  .section-header .section-title {
+    margin-bottom: 0;
+  }
+
+  .see-all {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: #a09890;
+    white-space: nowrap;
+    flex-shrink: 0;
+    text-decoration: none;
+    transition: color 0.15s ease;
+  }
+
+  .see-all:hover {
+    color: #c8380a;
+  }
+
+  /* ---- 記事カード ---- */
+  .posts-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  @media (min-width: 640px) {
+    .posts-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .posts-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .post-card {
+    background: #ffffff;
+    border: 1px solid #e5e2dc;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: box-shadow 0.2s ease, border-color 0.2s ease;
+  }
+
+  .post-card:hover {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border-color: #ccc9c3;
+  }
+
+  .post-card-link {
+    display: block;
+    text-decoration: none;
+  }
+
+  .post-card-image {
+    position: relative;
+    aspect-ratio: 16/10;
+    overflow: hidden;
+    background: #f0ede9;
+  }
+
+  .post-card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.35s ease;
+  }
+
+  .post-card:hover .post-card-image img {
+    transform: scale(1.03);
+  }
+
+  .post-card-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    opacity: 0.2;
+  }
+
+  .post-card-category {
+    position: absolute;
+    top: 0.625rem;
+    left: 0.625rem;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    color: #c8380a;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(200, 56, 10, 0.2);
+    padding: 0.2rem 0.5rem;
+    border-radius: 3px;
+    letter-spacing: 0.02em;
+  }
+
+  .post-card-body {
+    padding: 0.875rem 1rem 1rem;
+  }
+
+  .post-card-title {
+    font-family: 'Outfit', 'Noto Sans JP', sans-serif;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: #1c1a18;
+    line-height: 1.45;
+    margin-bottom: 0.4375rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    letter-spacing: -0.01em;
+  }
+
+  .post-card-desc {
+    font-size: 0.8125rem;
+    color: #6b6560;
+    line-height: 1.6;
+    margin-bottom: 0.625rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .post-card-date {
+    font-size: 0.75rem;
+    color: #a09890;
+  }
+
+  /* ---- 特集カード ---- */
+  .featured-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  @media (min-width: 640px) {
+    .featured-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  .featured-card {
+    background: #ffffff;
+    border: 1px solid #e5e2dc;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: box-shadow 0.2s ease, border-color 0.2s ease;
+  }
+
+  .featured-card:hover {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border-color: #ccc9c3;
+  }
+
+  .featured-card-link {
+    display: block;
+    text-decoration: none;
+  }
+
+  .featured-card-image {
+    aspect-ratio: 16/9;
+    overflow: hidden;
+    background: #f0ede9;
+  }
+
+  .featured-card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.35s ease;
+  }
+
+  .featured-card:hover .featured-card-image img {
+    transform: scale(1.03);
+  }
+
+  .featured-card-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    opacity: 0.2;
+  }
+
+  .featured-card-body {
+    padding: 1rem;
+  }
+
+  .featured-badge {
+    display: inline-block;
+    font-size: 0.625rem;
+    font-weight: 700;
+    color: #c8380a;
+    background: rgba(200, 56, 10, 0.07);
+    border: 1px solid rgba(200, 56, 10, 0.2);
+    padding: 0.15rem 0.5rem;
+    border-radius: 3px;
+    margin-bottom: 0.625rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .featured-card-title {
+    font-family: 'Outfit', 'Noto Sans JP', sans-serif;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: #1c1a18;
+    line-height: 1.45;
+    margin-bottom: 0.4375rem;
+    letter-spacing: -0.01em;
+  }
+
+  .featured-card-desc {
+    font-size: 0.8125rem;
+    color: #6b6560;
+    line-height: 1.6;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin: 0;
+  }
+
+  /* ---- ランキングプレースホルダー ---- */
+  .ranking-placeholder {
+    background: #f8f7f5;
+    border: 1px solid #e5e2dc;
+    border-radius: 8px;
+    padding: 3rem;
+    text-align: center;
+  }
+
+  .ranking-coming-soon {
+    font-size: 1rem;
+    color: #6b6560;
+    margin-bottom: 1.5rem;
+  }
+
+  /* 空メッセージ */
+  .empty-message {
+    color: #a09890;
+    text-align: center;
+    padding: 3rem 0;
+    font-size: 0.9375rem;
+  }
+</style>

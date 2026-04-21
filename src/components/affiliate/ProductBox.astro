@@ -1,0 +1,165 @@
+---
+interface AffiliateLink {
+  store: 'amazon' | 'rakuten' | 'mercari' | 'other';
+  label?: string;
+  url: string;
+  price?: string;
+}
+
+interface Props {
+  name: string;
+  image?: string;
+  priceNote?: string;
+  links: AffiliateLink[];
+  note?: string;
+}
+
+const { name, image, priceNote, links, note } = Astro.props;
+
+const STORE_LABELS: Record<string, string> = {
+  amazon: 'Amazon',
+  rakuten: '楽天市場',
+  mercari: 'メルカリ',
+  other: 'その他',
+};
+---
+
+<div class="product-box">
+  {image && (
+    <div class="product-box-image">
+      <img src={image} alt={name} loading="lazy" />
+    </div>
+  )}
+  <div class="product-box-body">
+    <p class="product-box-name">{name}</p>
+    {priceNote && <p class="product-box-price">{priceNote}</p>}
+    <div class="product-box-links">
+      {links.map((link) => (
+        <a
+          href={link.url}
+          class:list={['product-btn', `product-btn--${link.store}`]}
+          target="_blank"
+          rel="noopener noreferrer nofollow"
+        >
+          {link.label ?? STORE_LABELS[link.store] ?? link.store}
+          {link.price && <span class="product-btn-price">{link.price}</span>}
+          <span class="product-btn-arrow" aria-hidden="true">→</span>
+        </a>
+      ))}
+    </div>
+    {note && <p class="product-box-note">{note}</p>}
+  </div>
+</div>
+
+<style>
+  .product-box {
+    display: flex;
+    gap: 1rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.125rem;
+    background: var(--bg-surface);
+    margin: 1.5rem 0;
+  }
+
+  .product-box-image {
+    flex-shrink: 0;
+    width: 100px;
+    height: 100px;
+    border-radius: 6px;
+    overflow: hidden;
+    background: var(--bg-muted);
+  }
+
+  .product-box-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .product-box-body {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .product-box-name {
+    font-weight: 600;
+    font-size: 0.9375rem;
+    color: var(--text);
+    line-height: 1.4;
+    margin: 0;
+  }
+
+  .product-box-price {
+    font-size: 0.8125rem;
+    color: var(--text-2);
+    margin: 0;
+  }
+
+  .product-box-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.25rem;
+  }
+
+  .product-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.4375rem 0.875rem;
+    border-radius: 5px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: opacity 0.15s ease;
+    white-space: nowrap;
+  }
+
+  .product-btn:hover { opacity: 0.85; }
+
+  .product-btn--amazon {
+    background: #ff9900;
+    color: #111;
+  }
+
+  .product-btn--rakuten {
+    background: #bf0000;
+    color: #fff;
+  }
+
+  .product-btn--mercari {
+    background: #ff3366;
+    color: #fff;
+  }
+
+  .product-btn--other {
+    background: var(--text);
+    color: #fff;
+  }
+
+  .product-btn-price {
+    font-weight: 400;
+    opacity: 0.85;
+    font-size: 0.75rem;
+  }
+
+  .product-btn-arrow {
+    font-size: 0.75rem;
+  }
+
+  .product-box-note {
+    font-size: 0.75rem;
+    color: var(--text-3);
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  @media (max-width: 480px) {
+    .product-box { flex-direction: column; }
+    .product-box-image { width: 100%; height: 160px; }
+  }
+</style>

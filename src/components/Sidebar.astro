@@ -1,0 +1,140 @@
+---
+import { CATEGORIES } from '../consts';
+
+const currentPath = Astro.url.pathname;
+---
+
+<aside class="sidebar">
+  <div class="sidebar-section">
+    <h2 class="sidebar-heading">カテゴリ</h2>
+    <ul class="sidebar-cat-list">
+      {CATEGORIES.map((cat) => (
+        <li>
+          <a
+            href={`/category/${cat.key}`}
+            class:list={[
+              'sidebar-cat-link',
+              { active: currentPath.startsWith(`/category/${cat.key}`) },
+            ]}
+          >
+            <span class="sidebar-cat-icon" aria-hidden="true">{cat.icon}</span>
+            <span class="sidebar-cat-label">{cat.label}</span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </div>
+
+  <div class="sidebar-section">
+    <h2 class="sidebar-heading">コンテンツ</h2>
+    <ul class="sidebar-nav-list">
+      <li><a href="/blog" class:list={['sidebar-nav-link', { active: currentPath.startsWith('/blog') }]}>記事一覧</a></li>
+      <li><a href="/ranking" class:list={['sidebar-nav-link', { active: currentPath.startsWith('/ranking') }]}>ランキング</a></li>
+      <li><a href="/feature" class:list={['sidebar-nav-link', { active: currentPath.startsWith('/feature') }]}>おすすめ</a></li>
+    </ul>
+  </div>
+</aside>
+
+<style>
+  .sidebar {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    padding-top: 0.5rem;
+  }
+
+  .sidebar-section {
+    background: #ffffff;
+    border: 1px solid #e5e2dc;
+    border-radius: 8px;
+    padding: 1.125rem 1.25rem;
+  }
+
+  .sidebar-heading {
+    font-family: 'Outfit', 'Noto Sans JP', sans-serif;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    color: #a09890;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin: 0 0 0.875rem;
+    padding-bottom: 0.625rem;
+    border-bottom: 1px solid #f0ede9;
+  }
+
+  /* カテゴリリスト */
+  .sidebar-cat-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+  }
+
+  .sidebar-cat-link {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    padding: 0.5rem 0.625rem;
+    border-radius: 6px;
+    text-decoration: none;
+    color: #6b6560;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+
+  .sidebar-cat-link:hover {
+    background: #f8f7f5;
+    color: #1c1a18;
+  }
+
+  .sidebar-cat-link.active {
+    background: rgba(200, 56, 10, 0.07);
+    color: #c8380a;
+  }
+
+  .sidebar-cat-icon {
+    font-size: 1rem;
+    width: 1.25rem;
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  .sidebar-cat-label {
+    line-height: 1;
+  }
+
+  /* ナビリスト */
+  .sidebar-nav-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+  }
+
+  .sidebar-nav-link {
+    display: block;
+    padding: 0.4375rem 0.625rem;
+    border-radius: 6px;
+    text-decoration: none;
+    color: #6b6560;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+
+  .sidebar-nav-link:hover {
+    background: #f8f7f5;
+    color: #1c1a18;
+  }
+
+  .sidebar-nav-link.active {
+    background: rgba(200, 56, 10, 0.07);
+    color: #c8380a;
+  }
+</style>
